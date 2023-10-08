@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ps_mosquito_asp", "ps_mosquito_asp.csproj", "{045B4162-9304-4516-835B-14872767132D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{045B4162-9304-4516-835B-14872767132D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{045B4162-9304-4516-835B-14872767132D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{045B4162-9304-4516-835B-14872767132D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{045B4162-9304-4516-835B-14872767132D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D9E2BA6-388C-4B7F-9C94-9F0FFD2D3F32}
+	EndGlobalSection
+EndGlobal
