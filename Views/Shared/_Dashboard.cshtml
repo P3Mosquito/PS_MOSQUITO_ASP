@@ -12,7 +12,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">PS-MOSQUITO</a>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">PS-MOSQUITO</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -32,7 +32,7 @@
                     <ul class="navbar-nav ml-auto">
                         <!-- Utiliza la clase ml-auto para alinear a la derecha -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" id="navbarDropdownMenuLink">
+                            <a class="nav-link" asp-controller="Account" asp-action="LogOut" id="navbarDropdownMenuLink">
                                 Cerrar Sesion
                             </a>
                         </li>
