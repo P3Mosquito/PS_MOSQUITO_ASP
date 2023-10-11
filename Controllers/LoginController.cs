@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Firebase.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Newtonsoft.Json;
+using ps_mosquito_asp.Models;
 
 namespace ps_mosquito_asp.Controllers
 {
     public class LoginController : Controller
     {
-        private static string apiKEY = "AIzaSyBd0_dWTNOTQOA4vxbao9kWX6yEUWPhmuk";
+        
+        
         public IActionResult Index()
         {
             return View();
@@ -24,7 +27,7 @@ namespace ps_mosquito_asp.Controllers
         {
             return View();
         }
-
+       
 
         [AllowAnonymous]
         [HttpGet]
