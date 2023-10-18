@@ -15,10 +15,6 @@ namespace ps_mosquito_asp.Controllers
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonPath);
             FirestoreDb _db = FirestoreDb.Create(projectId);
         }
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
 
         public ActionResult Index()
         {
@@ -37,9 +33,7 @@ namespace ps_mosquito_asp.Controllers
             {
                 if (document.Exists)
                 {
-                    //// Convierte cada documento en un objeto UserModel (ajusta la clase UserModel según tus necesidades)
-                    //var user = document.ConvertTo<UserModel>();
-                    //supervisors.Add(user);
+                    
                     // Obtiene los campos del documento Firestore
                     var data = document.ToDictionary();
 
@@ -62,12 +56,43 @@ namespace ps_mosquito_asp.Controllers
                 }
             }
 
-            // Pasa la lista de supervisores a la vista
-            //ViewBag.Supervisors = new SelectList(supervisors,"name");
-
             return View(supervisors);
         }
 
+        [HttpPost]
+        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas)
+        {
+            if (SupervisorId != null)
+            {
+                // Realiza la lógica para asignar las tareas al supervisor seleccionado
+                var db = FirestoreDb.Create("mosquitobd-202b0");
 
+                // Genera una referencia a la colección "tareas" en Firestore
+                CollectionReference tasksRef = db.Collection("task");
+
+                // Itera para agregar la cantidad de tareas especificada
+                for (int i = 0; i < CantidadTareas; i++)
+                {
+                    // Crea un nuevo documento de tarea con los datos necesarios
+                    var newTask = new
+                    {
+                        Nombre = "Tarea " + (i + 1),
+                        SupervisorId = SupervisorId,
+                        // Otros campos de la tarea si los tienes
+                    };
+
+                    // Agrega la tarea a Firestore
+                    DocumentReference addedTaskRef = tasksRef.AddAsync(newTask).Result;
+                }
+
+                return View();
+            }
+            else
+            {
+                ModelState.AddModelError("SupervisorId", "Debes seleccionar un supervisor.");
+            }
+
+            return View();
+        }
     }
 }
