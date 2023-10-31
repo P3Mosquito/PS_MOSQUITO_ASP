@@ -1,7 +1,11 @@
 ﻿using Google.Cloud.Firestore;
+using Google.Type;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using ps_mosquito_asp.Models;
+using LatLng = ps_mosquito_asp.Models.LatLng;
+using System.Linq;
 
 namespace ps_mosquito_asp.Controllers
 {
@@ -60,10 +64,19 @@ namespace ps_mosquito_asp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas)
+        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas, string polygonCoords)
         {
             if (SupervisorId != null)
             {
+                // Deserializa el string JSON de polygonCoords a un objeto C#
+                List<LatLng> coordinates = JsonConvert.DeserializeObject<List<LatLng>>(polygonCoords);
+                // Convierte la lista de coordenadas a una lista de diccionarios
+                var coordinatesDictList = coordinates.Select(coord => new Dictionary<string, double>
+        {
+            {"Lat", coord.Lat},
+            {"Lng", coord.Lng}
+        }).ToList();
+
                 // Realiza la lógica para asignar las tareas al supervisor seleccionado
                 var db = FirestoreDb.Create("mosquitobd-202b0");
 
@@ -78,7 +91,7 @@ namespace ps_mosquito_asp.Controllers
                     {
                         Nombre = "Tarea " + (i + 1),
                         SupervisorId = SupervisorId,
-                        // Otros campos de la tarea si los tienes
+                        coordenadas = coordinatesDictList // Añade las coordenadas del polígono aquí
                     };
 
                     // Agrega la tarea a Firestore
@@ -94,5 +107,6 @@ namespace ps_mosquito_asp.Controllers
 
             return View();
         }
+
     }
 }
