@@ -4,45 +4,95 @@
     Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
 
-
-@*<div class="d-flex justify-content-center align-items-center">
-    <h3>Zonas</h3>
-</div>
-*@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Agrega aquí los enlaces a tus hojas de estilo CSS si es necesario -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQVYzLAj0zkPB59vVvC0-RbMX0UFJgVuk&callback=initMap&libraries=drawing&v=weekl" async></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQVYzLAj0zkPB59vVvC0-RbMX0UFJgVuk&callback=initMap&libraries=places&v=weekly" async></script>
     <script>
-        //function initMap() {
-        //    var mapOptions = {
-        //        center: { lat: - 17.413161828566164, lng: - 66.1584452341309
-        //    }, // Coordenadas del centro del mapa
-        //        zoom: 10 // Nivel de zoom
-        //    };
+        var map, searchBox, cityPolygon;
+        function initMap() {
+            var cochabamba = { lat: -17.383333, lng: -66.166667 };
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: cochabamba
+            });
 
-        //    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-        //}
+            var input = document.getElementById('city-search');
+            searchBox = new google.maps.places.SearchBox(input);
+            map.controls.push(input);
+
+            map.addListener('bounds_changed', function () {
+                searchBox.setBounds(map.getBounds());
+            });
+
+            searchBox.addListener('places_changed', function () {
+                var places = searchBox.getPlaces();
+
+                if (places.length == 0) {
+                    return;
+                }
+
+                // Si ya hay un polígono dibujado, lo eliminas
+                if (cityPolygon) {
+                    cityPolygon.setMap(null);
+                }
+
+                places.forEach(function (place) {
+                    if (!place.geometry) {
+                        console.log("Returned place contains no geometry");
+                        return;
+                    }
+
+                    // Construyes las coordenadas para el polígono rectangular
+                    var bounds = place.geometry.viewport;
+                    var northEast = bounds.getNorthEast();
+                    var southWest = bounds.getSouthWest();
+                    var northWest = new google.maps.LatLng(northEast.lat(), southWest.lng());
+                    var southEast = new google.maps.LatLng(southWest.lat(), northEast.lng());
+
+                    var polygonCoords = [northEast, northWest, southWest, southEast];
+
+                    // Dibujas el polígono
+                    cityPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: '#FF0000',
+                        fillOpacity: 0.35
+                    });
+
+                    cityPolygon.setMap(map);
+                    map.fitBounds(bounds);
+                });
+            });
+        }
+
+        function searchCity() {
+            google.maps.event.trigger(searchBox, 'places_changed');
+        }
     </script>
+
+
 </head>
 <body onload="initMap()">
     <div style="display: flex;">
         <!-- Lado izquierdo con campos para asignar zona -->
         <div style="width: 50%; padding: 20px;">
             <h2>Asignar Zona</h2>
+            <div class="card" style="background-color:#DCE1DE;">
+
             <form method="POST" asp-action="AssignTasks" asp-controller="Zonas">
                 <div>
-                    <label for="SupervisorId">Seleccione un supervisor:</label>
-                    <select id="SupervisorId" name="SupervisorId">
-                        <option value="">-- Seleccione un supervisor --</option>
+                    <select id="SupervisorId" name="SupervisorId" class="form-select">
+                        <option value="">-- Seleccione un Supervisor --</option>
                         @foreach (var supervisor in Model)
                         {
                             <option value="@supervisor.id">@supervisor.name @supervisor.lastname</option>
                         }
                     </select>
                 </div>
-                <div>
+                <div class="form-control">
                     <label>Tipo:</label>
                     <input type="checkbox" id="azul" name="tipo" value="azul">
                     <label for="azul">Azul</label>
@@ -51,71 +101,25 @@
                     <input type="checkbox" id="verde" name="tipo" value="verde">
                     <label for="verde">Verde</label>
                 </div>
-                <div>
+                <div class="form-control">
                     <label for="cantidadTareas">Cantidad de Tareas:</label>
-                    <input type="number" id="cantidadTareas" name="cantidadTareas">
+                    <input type="number" id="cantidadTareas" name="cantidadTareas" class="form-control">
                 </div>
-                <button type="submit">Asignar Zona</button>
+                <button type="submit" class="btn btn-success w-100 mt-3">Asignar Zona</button>
             </form>
+            </div>
         </div>
 
         <!-- Lado derecho con el mapa -->
         <div style="width: 50%;">
             <h6>Seleccionar Zona</h6>
-            <!-- Aquí puedes cargar el mapa de Google Maps utilizando JavaScript -->
-            <!-- Asegúrate de incluir los scripts de la API de Google Maps -->
-            <div id="map" style="height: 70vh;"></div>
-            <script type="text/javascript">
-                var map;
-                var circle;
-
-                var drawingManager;
-
-                function initMap() {
-                    map = new google.maps.Map(document.getElementById('map'), {
-                        center: { lat: - 17.413161828566164, lng: - 66.1584452341309 },
-                        zoom: 8
-                    });
-
-                    drawingManager = new google.maps.drawing.DrawingManager({
-                        drawingMode: google.maps.drawing.OverlayType.CIRCLE,
-                        drawingControl: true,
-                        drawingControlOptions: {
-                            position: google.maps.ControlPosition.TOP_CENTER,
-                            drawingModes: ['circle']
-                        },
-                        circleOptions: {
-                            strokeColor: '#FF0000',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: '#FF0000',
-                            fillOpacity: 0.35,
-                        }
-                    });
-                    drawingManager.setMap(map);
-
-                    google.maps.event.addListener(drawingManager, 'circlecomplete', function (newCircle) {
-                        // Eliminar el círculo anterior si existe
-                        if (circle) {
-                            circle.setMap(null);
-                        }
-                        // Guardar referencia al nuevo círculo
-                        circle = newCircle;
-                        saveCircleData();
-                    });
-                }
-
-                function saveCircleData() {
-                    if (circle) {
-                        var center = circle.getCenter();
-                        var radius = circle.getRadius();
-                        console.log('Center: ' + center.toString());
-                        console.log('Radius: ' + radius.toString());
-                        // Aquí puedes guardar la latitud, longitud y radio en una base de datos o en local storage, por ejemplo
-                    }
-                }
-
-            </script>
+            <div class="input-group mb-3">
+            <input id="city-search" type="text" class="form-control" placeholder="Buscar..." aria-label="Buscar">
+                <button class="btn btn-outline-secondary" type="button" onclick="searchCity()">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div id="map" style="height: 60vh;"></div>
         </div>
     </div>
 </body>
