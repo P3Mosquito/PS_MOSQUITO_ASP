@@ -64,7 +64,7 @@ namespace ps_mosquito_asp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas, string polygonCoords)
+        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas,string cityName, string polygonCoords)
         {
             if (SupervisorId != null)
             {
@@ -91,6 +91,7 @@ namespace ps_mosquito_asp.Controllers
                     {
                         Nombre = "Tarea " + (i + 1),
                         SupervisorId = SupervisorId,
+                        Zona = cityName,
                         coordenadas = coordinatesDictList // Añade las coordenadas del polígono aquí
                     };
 

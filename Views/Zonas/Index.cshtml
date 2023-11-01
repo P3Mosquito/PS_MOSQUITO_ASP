@@ -3,11 +3,10 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
-
 <!DOCTYPE html>
 <html>
 <head>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQVYzLAj0zkPB59vVvC0-RbMX0UFJgVuk&callback=initMap&libraries=places&v=weekly" async></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQVYzLAj0zkPB59vVvC0-RbMX0UFJgVuk&callback=initMap&libraries=places&v=weekly" async></script>
     <script>
         var map, searchBox, cityPolygon;
         function initMap() {
@@ -43,6 +42,8 @@
                         return;
                     }
 
+                    document.getElementById('cityName').value = place.name
+
                     // Construyes las coordenadas para el polígono rectangular
                     var bounds = place.geometry.viewport;
                     var northEast = bounds.getNorthEast();
@@ -73,8 +74,6 @@
             google.maps.event.trigger(searchBox, 'places_changed');
         }
     </script>
-
-
 </head>
 <body onload="initMap()">
     <div style="display: flex;">
@@ -94,6 +93,9 @@
                     </select>
                 </div>
                 <div class="form-control">
+                    <input class="form-control" type="text" id="cityName" name="cityName" readonly>
+                </div>
+                <div class="form-control">
                     <label>Tipo:</label>
                     <input type="checkbox" id="azul" name="tipo" value="azul">
                     <label for="azul">Azul</label>
@@ -106,7 +108,7 @@
                     <label for="cantidadTareas">Cantidad de Tareas:</label>
                     <input type="number" id="cantidadTareas" name="cantidadTareas" class="form-control">
                 </div>
-                <div class="form-control">
+                <div class="form-control" hidden>
                         <input type="text" id="polygonCoords" name="polygonCoords" class="form-control">
                 </div>
                 <button type="submit" class="btn btn-success w-100 mt-3">Asignar Zona</button>
