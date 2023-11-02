@@ -93,20 +93,20 @@
                     </select>
                 </div>
                 <div class="form-control">
+                    <label>Seleccionar Zona:</label>
                     <input class="form-control" type="text" id="cityName" name="cityName" readonly>
                 </div>
                 <div class="form-control">
                     <label>Tipo:</label>
-                    <input type="checkbox" id="azul" name="tipo" value="azul">
-                    <label for="azul">Azul</label>
-                    <input type="checkbox" id="rojo" name="tipo" value="rojo">
-                    <label for="rojo">Rojo</label>
-                    <input type="checkbox" id="verde" name="tipo" value="verde">
-                    <label for="verde">Verde</label>
+                    <select id="tipoColor" name="tipoColor" class="form-select">
+                        <option>Rojo</option>
+                        <option>Amarillo</option>
+                        <option>Verde</option>
+                    </select>
                 </div>
                 <div class="form-control">
-                    <label for="cantidadTareas">Cantidad de Tareas:</label>
-                    <input type="number" id="cantidadTareas" name="cantidadTareas" class="form-control">
+                    <label for="cantidadTareas">Cantidad de Muestras:</label>
+                    <input type="number" id="cantidadMax" name="cantidadMax" class="form-control">
                 </div>
                 <div class="form-control" hidden>
                         <input type="text" id="polygonCoords" name="polygonCoords" class="form-control">

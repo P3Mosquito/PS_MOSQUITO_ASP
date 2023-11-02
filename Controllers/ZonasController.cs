@@ -64,7 +64,7 @@ namespace ps_mosquito_asp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignTasks(string SupervisorId, int CantidadTareas,string cityName, string polygonCoords)
+        public ActionResult AssignTasks(string SupervisorId, int cantidadMax,string cityName, string polygonCoords)
         {
             if (SupervisorId != null)
             {
@@ -83,22 +83,20 @@ namespace ps_mosquito_asp.Controllers
                 // Genera una referencia a la colección "tareas" en Firestore
                 CollectionReference tasksRef = db.Collection("task");
 
-                // Itera para agregar la cantidad de tareas especificada
-                for (int i = 0; i < CantidadTareas; i++)
-                {
                     // Crea un nuevo documento de tarea con los datos necesarios
                     var newTask = new
                     {
-                        Nombre = "Tarea " + (i + 1),
+                        //Nombre = "Tarea",
+                        Estado = "Pendiente",
                         SupervisorId = SupervisorId,
+                        CantidadMax = cantidadMax,
                         Zona = cityName,
                         coordenadas = coordinatesDictList // Añade las coordenadas del polígono aquí
                     };
 
                     // Agrega la tarea a Firestore
                     DocumentReference addedTaskRef = tasksRef.AddAsync(newTask).Result;
-                }
-
+                
                 return View();
             }
             else
