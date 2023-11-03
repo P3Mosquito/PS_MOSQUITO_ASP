@@ -59,15 +59,6 @@ namespace ps_mosquito_asp.Controllers
                         { "position", loginModel.position },
                         { "email", loginModel.email },
                         { "password", loginModel.password }
-                        
-                        
-                        
-                        
-                        //lastname = loginModel.lastname,
-                        //ci = loginModel.ci,
-                        //role = loginModel.role,
-                        //position = loginModel.position,
-                        
 
                         // Agrega otros campos personalizados aquí si es necesario
                     };

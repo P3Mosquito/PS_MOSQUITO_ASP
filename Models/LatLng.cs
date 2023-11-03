@@ -1,8 +1,12 @@
-﻿namespace ps_mosquito_asp.Models
+﻿using Google.Cloud.Firestore;
+
+namespace ps_mosquito_asp.Models
 {
     public class LatLng
     {
-        public double Lat { get; set; }
-        public double Lng { get; set; }
+		[FirestoreProperty("Lat")]
+		public double Lat { get; set; }
+		[FirestoreProperty("Lng")]
+		public double Lng { get; set; }
     }
 }
