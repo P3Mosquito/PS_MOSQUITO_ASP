@@ -6,9 +6,12 @@ using Newtonsoft.Json;
 using ps_mosquito_asp.Models;
 using LatLng = ps_mosquito_asp.Models.LatLng;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ps_mosquito_asp.Controllers
 {
+    //[Authorize]
+    [Authorize(Roles = "Administrador, R")]
     public class ZonasController : Controller
     {
         FirestoreDb? _db;

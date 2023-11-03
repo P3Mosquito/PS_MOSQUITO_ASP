@@ -18,10 +18,20 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card p-4">
                     <div class="text-center mb-4">
-                        <img src="/logo_mosquito.png" alt="Mosquito Logo" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+                        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                            <img src="/logo_mosquito.png" alt="Mosquito Logo" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+                        </a>
                         <h4>Bienvenido a Mosquito</h4>
                     </div>
                     <form asp-action="Login">
+                        @{
+                            if (ViewData["Error"] != null)
+                            {
+                                <div class="alert alert-danger">
+                                    @ViewData["Error"]
+                                </div>
+                            }
+                        }
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="mb-3">
                             <label asp-for="email" class="form-label">E-mail</label>
@@ -30,7 +40,7 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="password" class="form-label">Contraseña</label>
-                            <input asp-for="password" class="form-control" placeholder="Contraseña" />
+                            <input asp-for="password" type="password" class="form-control" placeholder="Contraseña" />
                             <span asp-validation-for="password" class="text-danger"></span>
                         </div>
                         <div class="form-group">

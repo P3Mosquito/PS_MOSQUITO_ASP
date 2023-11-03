@@ -1,9 +1,13 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using ps_mosquito_asp.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ps_mosquito_asp.Controllers
 {
@@ -26,12 +30,16 @@ namespace ps_mosquito_asp.Controllers
             return View();
         }
 
+        //[Authorize]
+        [Authorize(Roles = "Administrador,R")]
         public IActionResult Register()
         {
             return View();
         }
 
         // Register POST
+        //[Authorize]
+        [Authorize(Roles = "Administrador,R")]
         [HttpPost]
         public async Task<IActionResult> Register(UserModel loginModel)
         {
@@ -85,6 +93,7 @@ namespace ps_mosquito_asp.Controllers
             return View();
         }
 
+
         public IActionResult Login()
         {
             return View();
@@ -103,8 +112,44 @@ namespace ps_mosquito_asp.Controllers
                 if (token != null)
                 {
                     HttpContext.Session.SetString("_UserToken", token);
+                    //New
+                    var db = FirestoreDb.Create("mosquitobd-202b0");
+                    DocumentReference docRef = db.Collection("users").Document(fbAuthLink.User.LocalId);
+                    DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                    string role = "R";
+                    if (snapshot.Exists)
+                    {
+                        var userData = snapshot.ToDictionary();
+                        role = userData.ContainsKey("role") ? userData["role"].ToString() : role;
+                    }
 
-                    return RedirectToAction("Register","Account");
+                    //
+
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Email, fbAuthLink.User.Email),
+                        new Claim(ClaimTypes.Name, fbAuthLink.User.LocalId),
+                        new Claim(ClaimTypes.Role.ToString(),role)
+
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true, // La cookie persistirá incluso después de cerrar el navegador
+                        ExpiresUtc = DateTime.UtcNow.AddMinutes(15) // Tiempo de expiración de la cookie
+                    };
+                    if (role == "Administrador" || role == "R")
+                    {
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                        return RedirectToAction("Register", "Account");
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "No puede iniciar sesion con una cuenta de Supervisor.";
+                        return View(loginModel);
+                    }
+                   
                    
                 }
 
@@ -120,10 +165,12 @@ namespace ps_mosquito_asp.Controllers
         }
 
 		//Logout
-		public IActionResult LogOut()
+		public async Task<IActionResult> LogOut()
 		{
 			HttpContext.Session.Remove("_UserToken");
-			return RedirectToAction("Login");
-		}
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //return RedirectToAction("Login");
+            return RedirectToAction("Index", "Home");
+        }
 	}
 }

@@ -13,7 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <img src="/logo_mosquito.png" alt="logo_mosquito" style="width:32px; height:32px;" />
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,13 +21,33 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav ms-auto">
+                            <!-- Utiliza la clase mx-auto para centrar los elementos -->
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                            <li class="nav-item">
+                                <a class="nav-link   " aria-current="page" asp-area="" asp-controller="Account" asp-action="Register">Registrar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Reporte" asp-action="Index">Reporte</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Zonas" asp-action="Index">Zonas</a>
+                            </li>
+                            }
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Ingresar a la Web
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Iniciar Sesion</a></li>
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="LogOut">Cerrar Sesion</a></li>
+
+                                @if (!User.Identity.IsAuthenticated)
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Iniciar Sesión</a></li>
+                                }
+                                else
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="LogOut">Cerrar Sesión</a></li>
+                                }
                             </ul>
                         </li>
                     </ul>
