@@ -14,23 +14,21 @@ namespace ps_mosquito_asp.Controllers
     public class AccountController : Controller
     {
         FirebaseAuthProvider auth;
-        FirestoreDb db;
+        //FirestoreDb? db;
         public AccountController()
         {
             {
                 auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyBd0_dWTNOTQOA4vxbao9kWX6yEUWPhmuk"));
-                string projectId = "mosquitobd-202b0";
+                //string projectId = "mosquitobd-202b0";
                 string jsonPath = @"C:\\Users\\brianlml\\Desktop\\ps_mosquito_asp\\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonPath);
-                FirestoreDb db = FirestoreDb.Create(projectId);
+                //FirestoreDb db = FirestoreDb.Create(projectId);
             }
         }
         public IActionResult Index()
         {
             return View();
         }
-
-        //[Authorize]
         [Authorize(Roles = "Administrador,R")]
         public IActionResult Register()
         {
@@ -38,62 +36,71 @@ namespace ps_mosquito_asp.Controllers
         }
 
         // Register POST
-        //[Authorize]
         [Authorize(Roles = "Administrador,R")]
         [HttpPost]
         public async Task<IActionResult> Register(UserModel loginModel)
         {
+            // Verifica si el modelo cumple con todas las validaciones
+            if (!ModelState.IsValid)
+            {
+                // Si no es válido, regresa a la vista con los errores de validación
+                return View(loginModel);
+            }
+            string namePart = loginModel.name!.Substring(0, 3).ToLower();
+            string ciPart = new String(loginModel.ci!.Where(Char.IsDigit).Take(3).ToArray());
+            string generatedPassword = namePart + ciPart;
             try
             {
                 // Crear el usuario en Firebase Authentication
-                var authResult = await auth.CreateUserWithEmailAndPasswordAsync(loginModel.email, loginModel.password);
-
+                var authResult = await auth.CreateUserWithEmailAndPasswordAsync(loginModel.email, generatedPassword);
                 // Loguear al nuevo usuario
-                var fbAuthLink = await auth
-                    .SignInWithEmailAndPasswordAsync(loginModel.email, loginModel.password);
-
-                string token = fbAuthLink.FirebaseToken;
-
+                //var fbAuthLink = await auth.SignInWithEmailAndPasswordAsync(loginModel.email, loginModel.password);
+                //string token = fbAuthLink.FirebaseToken;
                 // Guardar los datos adicionales en Firestore
-                if (token != null)
-                {
+                //if (token != null)
+                //{
                     // Crear un objeto para los datos adicionales
                     var additionalDataDict = new Dictionary<string, object>
                     {
-                        { "name", loginModel.name },
-                        { "lastname", loginModel.lastname },
-                        { "ci", loginModel.ci },
-                        { "role", loginModel.role },
-                        { "position", loginModel.position },
-                        { "email", loginModel.email },
-                        { "password", loginModel.password }
-
-                        // Agrega otros campos personalizados aquí si es necesario
+                        { "name", loginModel.name! },
+                        { "lastname", loginModel.lastname! },
+                        { "ci", loginModel.ci! },
+                        { "role", loginModel.role! },
+                        { "position", loginModel.position! },
+                        { "email", loginModel.email! },
+                        //{ "password",loginModel.password = generatedPassword}
+                        { "password", generatedPassword }
                     };
                     // Obtiene la instancia de Firestore
                     var db = FirestoreDb.Create("mosquitobd-202b0");
-
                     // Agregar los datos adicionales a Firestore
                     var userRef = db.Collection("users").Document(authResult.User.LocalId);
                     await userRef.SetAsync(additionalDataDict);
-
                     // Guardar el token en una variable de sesión
-                    HttpContext.Session.SetString("_UserToken", token);
-
+                    //HttpContext.Session.SetString("_UserToken", token);
                     return RedirectToAction("Index");
-                }
+                //}
             }
             catch (FirebaseAuthException ex)
             {
                 var firebaseEx = JsonConvert.DeserializeObject<FirebaseError>(ex.ResponseData);
-                ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                //ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                string errorMessage = firebaseEx?.error.message switch
+                {
+                    "EMAIL_NOT_FOUND" => "El correo electrónico no se encontró.",
+                    "INVALID_PASSWORD" => "La contraseña no es válida.",
+                    "USER_DISABLED" => "La cuenta de usuario ha sido deshabilitada.",
+                    "EMAIL_EXISTS" => "El correo ya existe.",
+                    // Añade más códigos y mensajes según sea necesario
+                    _ => "Ocurrió un error desconocido." // Mensaje genérico para errores no mapeados
+                };
+
+                ModelState.AddModelError(String.Empty, errorMessage);
                 return View(loginModel);
             }
-
-            return View();
+            //return View();
         }
-
-
+        //View
         public IActionResult Login()
         {
             return View();
@@ -105,31 +112,26 @@ namespace ps_mosquito_asp.Controllers
             try
             {
                 //log in an existing user
-                var fbAuthLink = await auth
-                                .SignInWithEmailAndPasswordAsync(loginModel.email, loginModel.password);
+                var fbAuthLink = await auth.SignInWithEmailAndPasswordAsync(loginModel.email, loginModel.password);
                 string token = fbAuthLink.FirebaseToken;
                 //save the token to a session variable
                 if (token != null)
                 {
                     HttpContext.Session.SetString("_UserToken", token);
-                    //New
                     var db = FirestoreDb.Create("mosquitobd-202b0");
                     DocumentReference docRef = db.Collection("users").Document(fbAuthLink.User.LocalId);
                     DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-                    string role = "R";
+                    string? role = "R";
                     if (snapshot.Exists)
                     {
                         var userData = snapshot.ToDictionary();
                         role = userData.ContainsKey("role") ? userData["role"].ToString() : role;
                     }
-
-                    //
-
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Email, fbAuthLink.User.Email),
                         new Claim(ClaimTypes.Name, fbAuthLink.User.LocalId),
-                        new Claim(ClaimTypes.Role.ToString(),role)
+                        new Claim(ClaimTypes.Role.ToString(),role!)
 
                     };
 
@@ -149,21 +151,27 @@ namespace ps_mosquito_asp.Controllers
                         ViewData["Error"] = "No puede iniciar sesion con una cuenta de Supervisor.";
                         return View(loginModel);
                     }
-                   
-                   
                 }
-
             }
             catch (FirebaseAuthException ex)
             {
+                // Deserializar la respuesta de error para obtener el código de error específico.
                 var firebaseEx = JsonConvert.DeserializeObject<FirebaseError>(ex.ResponseData);
-                ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+
+                // Mapeo del código de error de Firebase al mensaje de error del modelo.
+                string userErrorMessage = firebaseEx?.error.message switch
+                {
+                    "INVALID_LOGIN_CREDENTIALS" => "Las credenciales no son válidas. Verifique su email y contraseña.",
+                    "INVALID_PASSWORD" => "La contraseña es incorrecta. Inténtelo de nuevo o restablezca su contraseña.",
+                    _ => "Ocurrió un error de autenticación desconocido."
+                };
+
+                ModelState.AddModelError(string.Empty, userErrorMessage);
                 return View(loginModel);
             }
 
             return View();
         }
-
 		//Logout
 		public async Task<IActionResult> LogOut()
 		{

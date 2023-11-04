@@ -1,4 +1,5 @@
 ﻿using Google.Cloud.Firestore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ps_mosquito_asp.Models
 {
@@ -6,7 +7,8 @@ namespace ps_mosquito_asp.Models
     {
 		//public int? id { get; set; }
 		[FirestoreProperty("CantidadMax")]
-		public double? cantidadMax { get; set; }
+        [Range(1, 50, ErrorMessage = "La cantidad máxima debe ser un valor entre 1 y 50.")]
+        public double? cantidadMax { get; set; }
 		[FirestoreProperty("Estado")]
 		public string? status { get; set; }
 		[FirestoreProperty("Nombre")]
