@@ -80,8 +80,8 @@
     <div style="display: flex;">
         <!-- Lado izquierdo con campos para asignar zona -->
         <div style="width: 50%; padding: 20px;">
-            <h2>Asignar Zona</h2>
-            <div class="card" style="background-color:#DCE1DE;">
+            <h2 class="mb-4">Asignar Zona</h2>
+            <div class="card mt-2" style="background-color:#DCE1DE;">
 
             <form method="POST" asp-action="AssignTasks" asp-controller="Zonas" onsubmit="return handleSubmit()">
                 <div>
@@ -112,7 +112,7 @@
                 <div class="form-control" hidden>
                         <input type="text" id="polygonCoords" name="polygonCoords" class="form-control">
                 </div>
-                <button type="submit" class="btn btn-success w-100 mt-3">Asignar Zona</button>
+                <button type="submit" class="btn btn-success w-100 mt-2">Asignar Zona</button>
                     <!-- Modal Structure -->
                     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -144,7 +144,7 @@
                     <i class="bi bi-search"></i>
                 </button>
             </div>
-            <div id="map" style="height: 60vh;"></div>
+            <div id="map" style="height: 50vh;"></div>
         </div>
     </div>
 

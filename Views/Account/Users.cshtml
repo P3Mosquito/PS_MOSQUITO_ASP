@@ -37,8 +37,8 @@
                     <td>@Html.DisplayFor(modelItem => item.position)</td>
                     <td>@Html.DisplayFor(modelItem => item.email)</td>
                     <td>
-                        <a href="@Url.Action("Edit", new { id = item.id })" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="@Url.Action("Delete", new { id = item.id })" class="btn btn-sm btn-danger">Eliminar</a>
+                        <a href="@Url.Action("EditUser", new { id = item.id })" class="btn btn-sm btn-secondary">Editar</a>
+                        <a href="@Url.Action("DeleteUser", new { id = item.id })" class="btn btn-sm btn-danger">Eliminar</a>
                     </td>
                 </tr>
             }

@@ -217,5 +217,150 @@ namespace ps_mosquito_asp.Controllers
             return View(users);
         }
 
+        [Authorize(Roles = "Administrador,R")]
+        public async Task<IActionResult> EditUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var db = FirestoreDb.Create("mosquitobd-202b0");
+            DocumentReference docRef = db.Collection("users").Document(id);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                return NotFound();
+            }
+
+            var userData = snapshot.ToDictionary();
+            var user = new UserModel
+            {
+                id = id,
+                name = userData.ContainsKey("name") ? userData["name"].ToString() : "",
+                lastname = userData.ContainsKey("lastname") ? userData["lastname"].ToString() : "",
+                ci = userData.ContainsKey("ci") ? userData["ci"].ToString() : "",
+                role = userData.ContainsKey("role") ? userData["role"].ToString() : "",
+                position = userData.ContainsKey("position") ? userData["position"].ToString() : "",
+                email = userData.ContainsKey("email") ? userData["email"].ToString() : "",
+                // No se incluye la contraseña por cuestiones de seguridad.
+            };
+
+            return View(user);
+        }
+
+
+        // POST: Account/EditUser/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador,R")]
+        public async Task<IActionResult> EditUser(string id, UserModel userModel)
+        {
+            if (id != userModel.id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var db = FirestoreDb.Create("mosquitobd-202b0");
+                    DocumentReference docRef = db.Collection("users").Document(id);
+
+                    // Convertir UserModel a Dictionary para actualizar el documento en Firestore
+                    var updates = new Dictionary<string, object>
+            {
+                { "name", userModel.name },
+                { "lastname", userModel.lastname },
+                { "ci", userModel.ci },
+                { "role", userModel.role },
+                { "position", userModel.position },
+                { "email", userModel.email },
+                // No actualizar la contraseña aquí por razones de seguridad
+            };
+
+                    await docRef.UpdateAsync(updates);
+                }
+                catch (Exception ex)
+                {
+                    // Manejar cualquier error que pueda ocurrir
+                    ModelState.AddModelError("", "Ocurrió un error al actualizar el usuario.");
+                    return View(userModel);
+                }
+
+                return RedirectToAction(nameof(Users)); // Redirigir a la lista de usuarios
+            }
+
+            return View(userModel);
+        }
+
+        // GET: Account/DeleteUser/5
+        [Authorize(Roles = "Administrador,R")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var db = FirestoreDb.Create("mosquitobd-202b0");
+            DocumentReference docRef = db.Collection("users").Document(id);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                return NotFound();
+            }
+
+            //UserModel user = snapshot.ConvertTo<UserModel>();
+
+            var userData = snapshot.ToDictionary();
+            var user = new UserModel
+            {
+                id = id,
+                name = userData.ContainsKey("name") ? userData["name"].ToString() : "",
+                lastname = userData.ContainsKey("lastname") ? userData["lastname"].ToString() : "",
+                ci = userData.ContainsKey("ci") ? userData["ci"].ToString() : "",
+                role = userData.ContainsKey("role") ? userData["role"].ToString() : "",
+                position = userData.ContainsKey("position") ? userData["position"].ToString() : "",
+                email = userData.ContainsKey("email") ? userData["email"].ToString() : "",
+                // No se incluye la contraseña por cuestiones de seguridad.
+            };
+
+            // Consider whether you want to show a confirmation page or not
+            // If you don't want to show a confirmation page, you can redirect to a direct deletion
+            //return await DeleteConfirmed(id);
+
+            return View(user);
+        }
+
+        // POST: Account/DeleteUser/5
+        [HttpPost, ActionName("DeleteUser")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador,R")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            try
+            {
+                var db = FirestoreDb.Create("mosquitobd-202b0");
+                DocumentReference docRef = db.Collection("users").Document(id);
+                await docRef.DeleteAsync();
+
+                // If you also want to delete the authentication record from Firebase Authentication,
+                // you would use Firebase Admin SDK to delete the user by uid here.
+                // Note that you would need to handle the Firebase Authentication separately.
+
+                return RedirectToAction(nameof(Users)); // Redirect to the list of users
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors that might occur
+                ModelState.AddModelError("", "Hubo un error al eliminar el usuario.");
+                return View();
+            }
+        }
+
     }
 }
