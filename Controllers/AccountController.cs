@@ -105,6 +105,7 @@ namespace ps_mosquito_asp.Controllers
         {
             return View();
         }
+        
         //Login POST
         [HttpPost]
         public async Task<IActionResult> Login(UserModel loginModel)
@@ -163,7 +164,7 @@ namespace ps_mosquito_asp.Controllers
                 {
                     "INVALID_LOGIN_CREDENTIALS" => "Las credenciales no son válidas. Verifique su email y contraseña.",
                     "INVALID_PASSWORD" => "La contraseña es incorrecta. Inténtelo de nuevo o restablezca su contraseña.",
-                    _ => "Ocurrió un error de autenticación desconocido."
+                    _ => "Las credenciales no son válidas."
                 };
 
                 ModelState.AddModelError(string.Empty, userErrorMessage);
@@ -180,5 +181,41 @@ namespace ps_mosquito_asp.Controllers
             //return RedirectToAction("Login");
             return RedirectToAction("Index", "Home");
         }
-	}
+
+        //Add view for list of users
+        [Authorize(Roles = "Administrador,R")]
+        public async Task<IActionResult> Users()
+        {
+            var db = FirestoreDb.Create("mosquitobd-202b0");
+            var usersRef = db.Collection("users");
+            var query = usersRef.OrderBy("name");
+            var querySnapshot = await query.GetSnapshotAsync();
+            var users = new List<UserModel>();
+
+            foreach (var document in querySnapshot.Documents)
+            {
+                // Crea un diccionario a partir del documento
+                Dictionary<string, object> dictionary = document.ToDictionary();
+
+                // Crea una nueva instancia de UserModel y asigna los valores manualmente
+                var user = new UserModel
+                {
+                    id = document.Id,
+                    name = dictionary.ContainsKey("name") ? dictionary["name"] as string : null,
+                    lastname = dictionary.ContainsKey("lastname") ? dictionary["lastname"] as string : null,
+                    ci = dictionary.ContainsKey("ci") ? dictionary["ci"] as string : null,
+                    role = dictionary.ContainsKey("role") ? dictionary["role"] as string : null,
+                    position = dictionary.ContainsKey("position") ? dictionary["position"] as string : null,
+                    email = dictionary.ContainsKey("email") ? dictionary["email"] as string : null,
+                    password = dictionary.ContainsKey("password") ? dictionary["password"] as string : null,
+                    // Asegúrate de añadir todas las propiedades necesarias aquí.
+                };
+
+                users.Add(user);
+            }
+
+            return View(users);
+        }
+
+    }
 }
