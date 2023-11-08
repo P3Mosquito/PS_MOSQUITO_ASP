@@ -4,9 +4,78 @@
     Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
 
-<div class="d-flex justify-content-center align-items-center">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Tareas</title>
+</head>
+<body>
 
-<h3>Reporte</h3>
-</div>
+    <div class="container mt-4">
+
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="list-group">
+                    <div class="list-group-item active">LISTA SUPERVISORES</div>
+                    <button type="button" class="list-group-item list-group-item-action">Supervisor #1</button>
+                    <button type="button" class="list-group-item list-group-item-action">Zona #1</button>
+                </div>
+
+                <div class="mt-3">
+                    <label for="tipo" class="form-label">Tipo:</label>
+                    <select class="form-select" id="tipo">
+                        <option value="1" selected>Iniciado</option>
+                        <option value="2">En Proceso</option>
+                        <option value="3">Finalizado</option>
+                    </select>
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-success w-100">Buscar</button>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Aquí iría el mapa o la imagen del mapa -->
+                <div style="background: #e0e0e0; height: 300px; border-radius: 10px;"></div>
+
+                <table class="table mt-3">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tarea</th>
+                            <th>Zona</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Tarea #1</td>
+                            <td>Sur Ivirgarzama</td>
+                            <td>Iniciado</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Tarea #2</td>
+                            <td>Villa Tunari</td>
+                            <td>Iniciado</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Supervisor #3</td>
+                            <td>Norte Villa</td>
+                            <td>Iniciado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
 
 

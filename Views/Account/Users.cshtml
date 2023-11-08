@@ -1,0 +1,48 @@
+﻿@model IEnumerable<ps_mosquito_asp.Models.UserModel>
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+
+<p class="pt-2">
+    <a asp-action="Register" class="btn btn-success">Crear Nuevo Usuario</a>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+               @* <th>@Html.DisplayNameFor(model => model.id)</th>*@
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>CI</th>
+                <th>Rol</th>
+                <th>Cargo</th>
+                <th>Email</th>
+                <!-- Quita la columna de password para no exponer contraseñas -->
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                   @* <td>@Html.DisplayFor(modelItem => item.id)</td>*@
+                    <td>@Html.DisplayFor(modelItem => item.name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.lastname)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ci)</td>
+                    <td>@Html.DisplayFor(modelItem => item.role)</td>
+                    <td>@Html.DisplayFor(modelItem => item.position)</td>
+                    <td>@Html.DisplayFor(modelItem => item.email)</td>
+                    <td>
+                        <a href="@Url.Action("EditUser", new { id = item.id })" class="btn btn-sm btn-secondary">Editar</a>
+                        <a href="@Url.Action("DeleteUser", new { id = item.id })" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
