@@ -4,7 +4,7 @@ namespace ps_mosquito_asp.Models
 {
     public class TaskModel
     {
-		//public int? id { get; set; }
+		public string? id { get; set; }
 		[FirestoreProperty("CantidadMax")]
 		public double? cantidadMax { get; set; }
 		[FirestoreProperty("Estado")]
