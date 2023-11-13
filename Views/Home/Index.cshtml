@@ -1,6 +1,6 @@
-﻿@model List<TaskModel>
+﻿@model List<TaskListHomeModel>
 @{
-    ViewData["Title"] = "Home PS-MOSQUITO";
+    ViewData["Title"] = "Inicio PS-MOSQUITO";
 }
 <!DOCTYPE html>
 <html>
@@ -20,7 +20,8 @@
         // Agrega marcadores iniciales
         @foreach (var task in Model)
         {
-            @foreach (var coordenada in task.coordenadas)
+            @foreach (var coordenada in task.CoordenadasList)
+			
             {
                 <text>
                 var lat = parseFloat("@coordenada.Lat".replace(",", "."));
@@ -30,14 +31,15 @@
                     var marker = new google.maps.Marker({
                         position: { lat: lat, lng: lng },
                         map: map,
-                        title: "@task.zone"
+                        title: "@task.Descripcion"
                     });
                     markers.push(marker); // Agrega el marcador al arreglo de marcadores
                 }
                 </text>
             }
+            
         }
-
+        
         // Agrega un controlador de eventos al cambio del select
         document.getElementById("select_zone").addEventListener("change", function () {
             var selectedZone = this.value; // Obtiene el valor seleccionado en el select
@@ -59,14 +61,15 @@
 </head>
 <body onload="initMap()">
 	<div class="text-center">
-	<select id="select_zone" class="form-control">
+	<select id="select_zone" class="form-select w-100">
             <option value="">Selecciona una Zona</option>
             @foreach (var task in Model)
             {
-                <option value="@task.zone">@task.zone</option>
+                <option value="@task.Zona">@task.Zona</option>	
+                
             }
 	</select>
 	</div>
-    <div id="map" style="width: 100%; height: 420px;"></div>
+    <div id="map" style="width: 100%; height: 70vh;"></div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 ﻿@model List<UserModel>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Zonas";
     Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
 <!DOCTYPE html>
@@ -86,7 +86,7 @@
             <form method="POST" asp-action="AssignTasks" asp-controller="Zonas" onsubmit="return handleSubmit()">
                 <div>
                     <select id="SupervisorId" name="SupervisorId" class="form-select" required>
-                        <option value="">-- Seleccione un Supervisor --</option>
+                        <option value="">Seleccione un Supervisor</option>
                         @foreach (var supervisor in Model)
                         {
                             <option value="@supervisor.id">@supervisor.name @supervisor.lastname</option>

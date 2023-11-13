@@ -4,6 +4,8 @@ using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
 using ps_mosquito_asp.Models;
 using System.Diagnostics;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace ps_mosquito_asp.Controllers
 {
@@ -16,19 +18,20 @@ namespace ps_mosquito_asp.Controllers
         {
             _logger = logger;
             string projectId = "mosquitobd-202b0";
-            string jsonPath = @"C:\Users\HP\Desktop\dev-nuevo\PS_MOSQUITO_ASP\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+            //string jsonPath = @"C:\Users\HP\Desktop\dev-nuevo\PS_MOSQUITO_ASP\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+            string jsonPath = @"C:\\Users\\brianlml\\Desktop\\ps_mosquito_asp\\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonPath);
-            _db = FirestoreDb.Create(projectId);
+			_db = FirestoreDb.Create(projectId);
         }
 
 		public IActionResult Index()
 		{
 			var _db = FirestoreDb.Create("mosquitobd-202b0");
-			CollectionReference taskRef = _db.Collection("task");
+			CollectionReference taskRef = _db.Collection("task_list");
 			Query query = taskRef;
 			QuerySnapshot snapshot = query.GetSnapshotAsync().Result;
 
-			List<TaskModel> tasks = new List<TaskModel>();
+			List<TaskListHomeModel> tasks = new List<TaskListHomeModel>();
 
 			foreach (DocumentSnapshot documentSnapshot in snapshot)
 			{
@@ -36,35 +39,53 @@ namespace ps_mosquito_asp.Controllers
 				{
 					// Obtén los datos como un diccionario
 					Dictionary<string, object> data = documentSnapshot.ToDictionary();
-
 					// Crea un objeto TaskModel y asigna manualmente las propiedades
-					TaskModel task = new TaskModel
-					{
-						cantidadMax = data.ContainsKey("CantidadMax") ? Convert.ToDouble(data["CantidadMax"]) : null,
-						status = data.ContainsKey("Estado") ? (string)data["Estado"] : null,
-						name = data.ContainsKey("Nombre") ? data["Nombre"].ToString() : null,
-						supervisorId = data.ContainsKey("SupervisorId") ? data["SupervisorId"].ToString() : null,
-						zone = data.ContainsKey("Zona") ? data["Zona"].ToString() : null,
-						coordenadas = new List<LatLng>()
-					};
 
-					// Maneja la lista de coordenadas
-					if (data.ContainsKey("coordenadas") && data["coordenadas"] is List<object> coordenadas)
+					TaskListHomeModel task = new TaskListHomeModel
 					{
-						foreach (var coordenadaData in coordenadas)
-						{
-							if (coordenadaData is Dictionary<string, object> coordenada)
-							{
-								task.coordenadas.Add(new LatLng
-								{
-									Lat = coordenada.ContainsKey("Lat") ? Convert.ToDouble(coordenada["Lat"]) : 0.0,
-									Lng = coordenada.ContainsKey("Lng") ? Convert.ToDouble(coordenada["Lng"]) : 0.0
-								});
-							}
-						}
+                        //supervisorId = data.ContainsKey("SupervisorId") ? data["SupervisorId"].ToString() : null,
+                        Id = data.ContainsKey("Id") ? data["Id"].ToString() : null,
+                        Nombre = data.ContainsKey("Nombre") ? data["Nombre"].ToString() : null,
+                        Descripcion = data.ContainsKey("descripcion") ? data["descripcion"].ToString() : null,
+                        //Zona = data.ContainsKey("Zona") ? data["Zona"].ToString() : null,
+                        //Coordenadas = data.ContainsKey("coordenadas") ? data["coordenadas"].ToString() : null,
+                        ImagenPaths = data.ContainsKey("ImagenPaths") ? (List<string>)data["ImagenPaths"] : null,
+                        Tarea = data.ContainsKey("tarea") ? data["tarea"].ToString() : null                     
+                    };
+
+					if (data.ContainsKey("Id Tarea") && data["Id Tarea"] is Dictionary<string, object> idTarea)
+					{
+						task.Zona = idTarea.ContainsKey("Zona") ? idTarea["Zona"].ToString() : null;
 					}
+                    task.CoordenadasList = new List<LatLng>();
+                    if (data.ContainsKey("coordenadas") && data["coordenadas"] is string coordenadasString)
+					{
+						// Utiliza expresiones regulares para extraer las coordenadas
+						var match = Regex.Match(coordenadasString, @"Latitud:\s*(-?\d+\.\d+),\s*Longitud:\s*(-?\d+\.\d+)");
 
-					tasks.Add(task);
+                        // Verifica si se encontraron coincidencias
+                        if (match.Success)
+                        {
+                            // Obtener los valores de latitud y longitud como cadenas
+                            string latitudStr = match.Groups[1].Value;
+                            string longitudStr = match.Groups[2].Value;
+
+                            // Utilizar la cultura invariante para asegurar el formato correcto sin depender de la configuración regional
+                            CultureInfo culture = CultureInfo.InvariantCulture;
+
+                            // Convertir las cadenas a double
+                            if (double.TryParse(latitudStr, NumberStyles.Float, culture, out double latitud) &&
+                                double.TryParse(longitudStr, NumberStyles.Float, culture, out double longitud))
+                            {
+                                task.CoordenadasList.Add(new LatLng { Lat = latitud, Lng = longitud });
+                            }
+                            else
+                            {
+                                task.CoordenadasList.Add(new LatLng { Lat = 0.0, Lng = 0.0 });
+                            }
+                        }
+                    }
+                    tasks.Add(task);
 				}
 			}
 

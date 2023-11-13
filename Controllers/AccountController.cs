@@ -145,7 +145,7 @@ namespace ps_mosquito_asp.Controllers
                     if (role == "Administrador" || role == "R")
                     {
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-                        return RedirectToAction("Register", "Account");
+                        return RedirectToAction("Users", "Account");
                     }
                     else
                     {
