@@ -20,7 +20,7 @@ namespace ps_mosquito_asp.Controllers
             {
                 auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyBd0_dWTNOTQOA4vxbao9kWX6yEUWPhmuk"));
                 //string projectId = "mosquitobd-202b0";
-                string jsonPath = @"C:\Users\HP\Desktop\dev-nuevo\PS_MOSQUITO_ASP\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+                string jsonPath = @"C:\Users\HP\Desktop\Mosquito\PS_MOSQUITO_ASP\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonPath);
                 //FirestoreDb db = FirestoreDb.Create(projectId);
             }

@@ -34,14 +34,14 @@
 </head>
 <body>
 
-    <div class="container mt-4">
-        <h2 class="mb-4">Reporte de Tareas</h2>
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4 text-center">Reporte de Tareas</h2>
         <div class="row">
             <div class="col-md-3">
                 <!-- Lista de Supervisores -->
                 <div class="list-group mb-3">
                     <h3 class="list-group-item active" style="background-color: #49A078; color: white;">LISTA SUPERVISORES</h3>
-                    <select name="supervisorList" id="supervisorList" class="list-group-item">
+                    <select name="supervisorList" id="supervisorList" class="list-group-item form-control">
                         @foreach (var supervisor in Model)
                         {
                             <option value="@supervisor.id">@supervisor.name @supervisor.lastname</option>
@@ -52,7 +52,7 @@
                 <!-- Filtro por Zona -->
                 <div class="list-group mb-3">
                     <h3 class="list-group-item active" style="background-color: #49A078; color: white;">ZONAS</h3>
-                    <select name="taskList" id="taskList" class="list-group-item">
+                    <select name="taskList" id="taskList" class="list-group-item form-control">
                         <!-- Las opciones de zona se añadirán aquí -->
                     </select>
                 </div>
@@ -75,7 +75,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="col-md-9">
@@ -83,22 +82,24 @@
                 <div id="map" style="width: 100%; height: 420px;"></div>
 
                 <!-- Tabla de Tareas -->
-                    <table class="table mt-3" id="tasksTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Tarea</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tasksTableBody">
-                        <!-- Las filas de la tabla se insertarán aquí mediante JavaScript -->
-                    </tbody>
-                </table>
+                <div class="table-responsive mt-3">
+                    <table class="table" id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Tarea</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <!-- Las filas de la tabla se insertarán aquí mediante JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        
+        </div>
     </div>
     <script>
         var allTasks = @Html.Raw(ViewBag.AllTasks);
