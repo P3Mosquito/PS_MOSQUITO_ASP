@@ -56,6 +56,7 @@ namespace ps_mosquito_asp.Controllers
 					if (data.ContainsKey("Id Tarea") && data["Id Tarea"] is Dictionary<string, object> idTarea)
 					{
 						task.Zona = idTarea.ContainsKey("Zona") ? idTarea["Zona"].ToString() : null;
+                        task.IDtarea = idTarea.ContainsKey("IDtarea") ? idTarea["IDtarea"].ToString() : null;
 					}
                     task.CoordenadasList = new List<LatLng>();
                     if (data.ContainsKey("coordenadas") && data["coordenadas"] is string coordenadasString)

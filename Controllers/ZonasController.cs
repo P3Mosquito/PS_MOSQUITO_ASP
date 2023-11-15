@@ -60,42 +60,45 @@ namespace ps_mosquito_asp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignTasks(string SupervisorId, int cantidadMax,string cityName, string polygonCoords)
+        public async Task<ActionResult> AssignTasks(string SupervisorId, int cantidadMax, string cityName, string polygonCoords)
         {
             if (SupervisorId != null)
             {
-                // Deserializa el string JSON de polygonCoords a un objeto C#
                 List<LatLng>? coordinates = JsonConvert.DeserializeObject<List<LatLng>>(polygonCoords);
-                // Convierte la lista de coordenadas a una lista de diccionarios
                 var coordinatesDictList = coordinates?.Select(coord => new Dictionary<string, double>
-                {
-                    {"Lat", coord.Lat},
-                    {"Lng", coord.Lng}
-                }).ToList();
-                // Realiza la lógica para asignar las tareas al supervisor seleccionado
+        {
+            {"Lat", coord.Lat},
+            {"Lng", coord.Lng}
+        }).ToList();
+
                 var db = FirestoreDb.Create("mosquitobd-202b0");
-                // Genera una referencia a la colección "tareas" en Firestore
                 CollectionReference tasksRef = db.Collection("task");
-                    // Crea un nuevo documento de tarea con los datos necesarios
-                    var newTask = new
-                    {
-                        //Nombre = "Tarea",
-                        Estado = "Pendiente",
-                        CantidadTareasRealizadas = 0,
-                        SupervisorId = SupervisorId,
-                        CantidadMax = cantidadMax,
-                        Zona = cityName,
-                        coordenadas = coordinatesDictList // Añade las coordenadas del polígono aquí
-                    };
-                    // Agrega la tarea a Firestore
-                    DocumentReference addedTaskRef = tasksRef.AddAsync(newTask).Result;    
+
+                // Crea un nuevo objeto de tarea con los campos necesarios
+                var newTask = new
+                {
+                    Estado = "Pendiente",
+                    CantidadTareasRealizadas = 0,
+                    SupervisorId = SupervisorId,
+                    CantidadMax = cantidadMax,
+                    Zona = cityName,
+                    coordenadas = coordinatesDictList
+                };
+
+                // Agrega la tarea a Firestore y obtén el ID de la tarea creada
+                DocumentReference addedTaskRef = await tasksRef.AddAsync(newTask);
+                string taskId = addedTaskRef.Id;
+
+                // Actualiza el documento con el ID de la tarea
+                await addedTaskRef.UpdateAsync("IDtarea", taskId);
+
                 return View();
             }
             else
             {
                 ModelState.AddModelError("SupervisorId", "Debes seleccionar un supervisor.");
+                return View();
             }
-            return View();
         }
     }
 }
