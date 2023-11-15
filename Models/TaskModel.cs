@@ -10,7 +10,9 @@ namespace ps_mosquito_asp.Models
         [Range(1, 50, ErrorMessage = "La cantidad máxima debe ser un valor entre 1 y 50.")]
         public double? cantidadMax { get; set; }
 		[FirestoreProperty("Estado")]
-		public string? status { get; set; }
+        public double? cantidadTareasRealizadas { get; set; }
+        [FirestoreProperty("CantidadTareasRealizadas")]
+        public string? status { get; set; }
 		[FirestoreProperty("Nombre")]
 		public string? name { get; set; }
 		[FirestoreProperty("SupervisorId")]

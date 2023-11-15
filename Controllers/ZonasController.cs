@@ -81,6 +81,7 @@ namespace ps_mosquito_asp.Controllers
                     {
                         //Nombre = "Tarea",
                         Estado = "Pendiente",
+                        CantidadTareasRealizadas = 0,
                         SupervisorId = SupervisorId,
                         CantidadMax = cantidadMax,
                         Zona = cityName,
