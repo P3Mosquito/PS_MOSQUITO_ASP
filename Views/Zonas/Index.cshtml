@@ -100,9 +100,10 @@
                 <div class="form-control">
                     <label>Color:</label>
                     <select id="tipoColor" name="tipoColor" class="form-select">
-                        <option>Rojo</option>
-                        <option>Amarillo</option>
-                        <option>Verde</option>
+                            @foreach (var colorName in ViewBag.ColorNames)
+                            {
+                                <option>@colorName</option>
+                            }
                     </select>
                 </div>
                 <div class="form-control">

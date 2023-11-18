@@ -29,15 +29,17 @@ namespace ps_mosquito_asp.Controllers
         public ActionResult Index()
         {
             var _db = FirestoreDb.Create("mosquitobd-202b0");
+
             // Accede a la colección "users" en Firestore
             CollectionReference usersRef = _db.Collection("users");
             // Realiza una consulta para obtener los usuarios con "role" igual a "Supervisor"
             Query query = usersRef.WhereEqualTo("role", "Supervisor");
-            QuerySnapshot snapshot = query.GetSnapshotAsync().Result;
+            QuerySnapshot userSnapshot = query.GetSnapshotAsync().Result;
+
             // Crea una lista de usuarios que cumplen con el filtro
             var supervisors = new List<UserModel>();
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            foreach (DocumentSnapshot document in userSnapshot.Documents)
             {
                 if (document.Exists)
                 {
@@ -48,7 +50,7 @@ namespace ps_mosquito_asp.Controllers
                     {
                         id = document.Id,
                         name = data.ContainsKey("name") ? data["name"].ToString() : null,
-                        // Ajusta el nombre del campo según corresponda                                                 
+                        // Ajusta el nombre del campo según corresponda
                         // Asigna otros campos aquí
                         lastname = data.ContainsKey("lastname") ? data["lastname"].ToString() : null,
                         ci = data.ContainsKey("ci") ? data["ci"].ToString() : null,
@@ -60,11 +62,36 @@ namespace ps_mosquito_asp.Controllers
                     supervisors.Add(user);
                 }
             }
+
+            // Accede a la colección "colors" en Firestore
+            CollectionReference colorsRef = _db.Collection("colors");
+            Query colorsQuery = colorsRef;
+            QuerySnapshot colorsSnapshot = colorsQuery.GetSnapshotAsync().Result;
+
+            // Crea una lista de nombres de colores
+            var colorNames = new List<string>();
+
+            foreach (DocumentSnapshot colorDocument in colorsSnapshot.Documents)
+            {
+                if (colorDocument.Exists)
+                {
+                    // Obtiene el nombre del color del documento Firestore
+                    var colorData = colorDocument.ToDictionary();
+                    var colorName = colorData.ContainsKey("name") ? colorData["name"].ToString() : null;
+                    var color = colorData.ContainsKey("color") ? colorData["color"].ToString() : null;
+                    colorNames.Add(colorName);
+                }
+            }
+
+            // Almacena la lista de nombres de colores en un ViewBag
+            ViewBag.ColorNames = colorNames;
+
             return View(supervisors);
         }
 
+
         [HttpPost]
-        public async Task<ActionResult> AssignTasks(string SupervisorId, int cantidadMax, string cityName, string polygonCoords)
+        public async Task<ActionResult> AssignTasks(string SupervisorId, int cantidadMax, string cityName, string polygonCoords, string tipoColor)
         {
             if (SupervisorId != null)
             {
@@ -83,6 +110,7 @@ namespace ps_mosquito_asp.Controllers
                 {
                     Estado = "Pendiente",
                     CantidadTareasRealizadas = 0,
+                    TipoColor = tipoColor,
                     SupervisorId = SupervisorId,
                     CantidadMax = cantidadMax,
                     Zona = cityName,
