@@ -11,7 +11,10 @@ namespace ps_mosquito_asp.Controllers
     {
         public ColoresController()
         {
-            string jsonPath = @"C:\\Users\\brianlml\\Desktop\\ps_mosquito_asp\\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+            //string jsonPath = @"C:\\Users\\brianlml\\Desktop\\ps_mosquito_asp\\mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFileName = "mosquitobd-202b0-firebase-adminsdk-7c4jx-8814777652.json";
+            string jsonPath = Path.Combine(baseDirectory, jsonFileName);
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonPath);
         }
         public IActionResult Create()
