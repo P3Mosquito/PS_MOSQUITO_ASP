@@ -12,6 +12,6 @@
         public List<string>? ImagenPaths { get; set; }
         public string? Tarea { get; set; }
 
-		public List<LatLng>? CoordenadasList { get; set; }
+		public List<LatLng>? CoordenadasList { get; set; } = new List<LatLng>();
 	}
 }
