@@ -63,6 +63,13 @@ namespace ps_mosquito_asp.Controllers
                                                         var coordObj = data.ContainsKey("coordenadas") ? data["coordenadas"] : null;
 
                                                         var coordList = new List<Dictionary<string, double>>();
+
+                                                        var colorId = data.ContainsKey("TipoColor") ? data["TipoColor"].ToString() : null;
+
+                                                        var colorRef = _db.Collection("colors").Document(colorId);
+                                                        var colorSnapshot = colorRef.GetSnapshotAsync().Result;
+                                                        var colorValue = colorSnapshot.Exists ? colorSnapshot.GetValue<string>("color") : "#FFFFFF"; // Usar un valor por defecto si no hay color
+
                                                         if (coordObj is IEnumerable<object> coords)
                                                         {
                                                             foreach (var item in coords)
@@ -90,6 +97,7 @@ namespace ps_mosquito_asp.Controllers
                                                             Zona = zona,
                                                             Estado = data.ContainsKey("Estado") ? data["Estado"].ToString() : null,
                                                             Coordenadas = coordList.Count > 0 ? coordList : null,
+                                                            ColorValue = colorValue,
                                                             // ... otros campos si los necesitas
                                                         };
 

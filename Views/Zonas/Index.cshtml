@@ -99,12 +99,12 @@
                 </div>
                 <div class="form-control">
                     <label>Color:</label>
-                    <select id="tipoColor" name="tipoColor" class="form-select">
-                            @foreach (var colorName in ViewBag.ColorNames)
+                        <select id="tipoColorId" name="tipoColorId" class="form-select">
+                            @foreach (var color in ViewBag.ColorNamesAndIds)
                             {
-                                <option>@colorName</option>
+                                <option value="@color.Item2">@color.Item1</option>
                             }
-                    </select>
+                        </select>
                 </div>
                 <div class="form-control">
                     <label for="cantidadTareas">Cantidad de Muestras:</label>

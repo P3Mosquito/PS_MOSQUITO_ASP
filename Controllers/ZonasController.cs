@@ -69,29 +69,28 @@ namespace ps_mosquito_asp.Controllers
             QuerySnapshot colorsSnapshot = colorsQuery.GetSnapshotAsync().Result;
 
             // Crea una lista de nombres de colores
-            var colorNames = new List<string>();
+            var colorNamesAndIds = new List<Tuple<string, string>>();
 
             foreach (DocumentSnapshot colorDocument in colorsSnapshot.Documents)
             {
                 if (colorDocument.Exists)
                 {
-                    // Obtiene el nombre del color del documento Firestore
                     var colorData = colorDocument.ToDictionary();
                     var colorName = colorData.ContainsKey("name") ? colorData["name"].ToString() : null;
-                    var color = colorData.ContainsKey("color") ? colorData["color"].ToString() : null;
-                    colorNames.Add(colorName);
+                    var colorId = colorDocument.Id; // Obtener el ID del documento
+                    colorNamesAndIds.Add(new Tuple<string, string>(colorName, colorId));
                 }
             }
 
             // Almacena la lista de nombres de colores en un ViewBag
-            ViewBag.ColorNames = colorNames;
+            ViewBag.ColorNamesAndIds = colorNamesAndIds;
 
             return View(supervisors);
         }
 
 
         [HttpPost]
-        public async Task<ActionResult> AssignTasks(string SupervisorId, int cantidadMax, string cityName, string polygonCoords, string tipoColor)
+        public async Task<ActionResult> AssignTasks(string SupervisorId, int cantidadMax, string cityName, string polygonCoords, string tipoColorId)
         {
             if (SupervisorId != null)
             {
@@ -110,7 +109,7 @@ namespace ps_mosquito_asp.Controllers
                 {
                     Estado = "Pendiente",
                     CantidadTareasRealizadas = 0,
-                    TipoColor = tipoColor,
+                    TipoColor = tipoColorId,
                     SupervisorId = SupervisorId,
                     CantidadMax = cantidadMax,
                     Zona = cityName,

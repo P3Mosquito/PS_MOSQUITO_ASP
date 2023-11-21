@@ -117,63 +117,66 @@
 
                 if (tasks[supervisorId]) {
                     tasks[supervisorId].forEach(task => {
-                        // Aquí cambiamos task.Name por task.Zona
-                        taskOptions += `<option value='${task.Id}' data-state='${task.Estado}' data-coordinates='${JSON.stringify(task.Coordenadas)}'>${task.Zona}</option>`;
+                        taskOptions += `<option value='${task.Id}'
+                                                data-state='${task.Estado}'
+                                                data-coordinates='${JSON.stringify(task.Coordenadas)}'
+                                                data-colorValue='${task.ColorValue}'>${task.Zona}</option>`;
                     });
                 }
 
                 $('#taskList').html(taskOptions);
-                // Limpia la tabla ya que el supervisor cambió
+                // Limpia la tabla y los detalles del color ya que el supervisor cambió
                 $('#tasksTable tbody').empty();
+                $('#colorDisplay').css('background-color', ''); // Resetea el color
+                $('#colorName').text(''); // Resetea el nombre del color
             });
 
-            // Código para mostrar el estado y las coordenadas cuando se selecciona una tarea y actualizar la tabla de tareas
+            // Código para mostrar el estado, las coordenadas y el color cuando se selecciona una tarea y actualizar la tabla de tareas
             $('#taskList').change(function () {
                 var selectedTaskId = $(this).val();
                 var selectedTaskState = $(this).find('option:selected').data('state');
                 var coords = $(this).find('option:selected').data('coordinates');
-                    var selectedTaskState = $(this).find('option:selected').data('state');
+                var selectedTaskColorValue = $(this).find('option:selected').data('colorValue');
 
-                    // Actualiza los checkboxes según el estado de la tarea seleccionada
-                    $('#pendingCheck').prop('checked', selectedTaskState === 'Pendiente');
-                    $('#inProcessCheck').prop('checked', selectedTaskState === 'En Proceso');
-                    $('#finishedCheck').prop('checked', selectedTaskState === 'Terminado');
-
+                // Actualiza los checkboxes según el estado de la tarea seleccionada
+                $('#pendingCheck').prop('checked', selectedTaskState === 'Pendiente');
+                $('#inProcessCheck').prop('checked', selectedTaskState === 'En Proceso');
+                $('#finishedCheck').prop('checked', selectedTaskState === 'Terminado');
                 $('#taskState').val(selectedTaskState);
-               
+
+                // Actualiza la visualización del color
+                $('#colorDisplay').css('background-color', selectedTaskColorValue);
 
                 // Actualiza la tabla con las tareas que coinciden con el IDtarea seleccionado
                 var allTaskList = JSON.parse('@Html.Raw(ViewBag.TaskList)');
                 var matchingTasks = allTaskList.filter(task => task.IDtarea === selectedTaskId);
-
-                // Limpia la tabla antes de agregar las filas nuevas
                 var tableBody = $('#tasksTable tbody');
                 tableBody.empty();
 
                 // Agrega cada tarea coincidente a la tabla
-                let rowNumber = 1; // Inicializa un contador para las filas
+                let rowNumber = 1;
                 matchingTasks.forEach(task => {
                     var newRow = `<tr>
-                      <td>${rowNumber++}</td> <!-- Usa y luego incrementa el contador de filas -->
-                      <td>${task.Nombre}</td>
-                      <td>${task.Descripcion}</td>
-                      <td>${task.Tarea}</td>
-                                  <td><button onclick="openTaskDetails('${task.Id}')" class="btn" style="background-color: #49A078; color: white;">Detalles</button></td>
-                  </tr>`;
+                          <td>${rowNumber++}</td>
+                          <td>${task.Nombre}</td>
+                          <td>${task.Descripcion}</td>
+                          <td>${task.Tarea}</td>
+                          <td><button onclick="openTaskDetails('${task.Id}')" class="btn" style="background-color: #49A078; color: white;">Detalles</button></td>
+                      </tr>`;
                     tableBody.append(newRow);
                 });
 
-                // Dibuja el polígono en el mapa
+                // Dibuja el polígono en el mapa con el color seleccionado
                 if (polygon) {
                     polygon.setMap(null); // Elimina el polígono anterior si existe
                 }
                 if (coords && coords.length > 0) {
                     polygon = new google.maps.Polygon({
                         paths: coords.map(coord => new google.maps.LatLng(coord.Lat, coord.Lng)),
-                        strokeColor: '#FF0000',
+                        strokeColor: selectedTaskColorValue, // Usa el color seleccionado
                         strokeOpacity: 0.8,
                         strokeWeight: 2,
-                        fillColor: '#FF0000',
+                        fillColor: selectedTaskColorValue, // Usa el color seleccionado
                         fillOpacity: 0.35
                     });
                     polygon.setMap(map);
@@ -181,6 +184,7 @@
             });
         });
     </script>
+
     <script>
         function openTaskDetails(taskId) {
             // Aquí puedes especificar la URL para la acción de detalles de tu controlador
