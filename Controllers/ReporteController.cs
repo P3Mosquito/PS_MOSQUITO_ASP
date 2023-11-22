@@ -68,7 +68,11 @@ namespace ps_mosquito_asp.Controllers
 
                                                         var colorRef = _db.Collection("colors").Document(colorId);
                                                         var colorSnapshot = colorRef.GetSnapshotAsync().Result;
-                                                        var colorValue = colorSnapshot.Exists ? colorSnapshot.GetValue<string>("color") : "#FFFFFF"; // Usar un valor por defecto si no hay color
+
+                                                        // Obtiene los campos adicionales del color
+                                                        var colorValue = colorSnapshot.Exists ? colorSnapshot.GetValue<string>("color") : "#FF0000"; // Valor por defecto si no hay color
+                                                        var colorDescription = colorSnapshot.Exists ? colorSnapshot.GetValue<string>("description") : "Descripción no disponible";
+                                                        var colorName = colorSnapshot.Exists ? colorSnapshot.GetValue<string>("name") : "Nombre no disponible";
 
                                                         if (coordObj is IEnumerable<object> coords)
                                                         {
@@ -84,7 +88,7 @@ namespace ps_mosquito_asp.Controllers
                                                                 }
                                                             }
                                                         }
-                                                        // Reemplaza comillas dobles por comillas latinas dobles en la zona
+
                                                         var zona = data.ContainsKey("Zona") ? data["Zona"].ToString() : null;
                                                         if (!string.IsNullOrEmpty(zona))
                                                         {
@@ -98,13 +102,17 @@ namespace ps_mosquito_asp.Controllers
                                                             Estado = data.ContainsKey("Estado") ? data["Estado"].ToString() : null,
                                                             Coordenadas = coordList.Count > 0 ? coordList : null,
                                                             ColorValue = colorValue,
-                                                            // ... otros campos si los necesitas
+                                                            ColorDescription = colorDescription, // Agrega la descripción del color
+                                                            ColorName = colorName, // Agrega el nombre del color
+                                                                                   // ... otros campos si los necesitas
                                                         };
 
                                                     }).ToList();
 
+
                 allTasks[supervisor.id] = tasksForSupervisor;
             }
+
 
             // Envía ambos, supervisores y tareas, al View
             ViewBag.AllTasks = Newtonsoft.Json.JsonConvert.SerializeObject(allTasks);

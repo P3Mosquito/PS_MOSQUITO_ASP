@@ -75,6 +75,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="list-group mb-3">
+                    <h3 class="list-group-item active" style="background-color: #49A078; color: white;">COLOR</h3>
+                    <label id="colorName" class="list-group-item"></label>
+                    <label id="colorDescription" class="list-group-item"></label>
+                </div>
+                <div class="list-group mb-3">
+                    <form action="@Url.Action("Index", "Reporte")" method="get">
+                        <button type="submit" class="btn btn-success btn-lg" >Actualizar</button>
+                    </form>
+                </div>
+                
             </div>
 
             <div class="col-md-9">
@@ -107,83 +118,83 @@
     <script type="text/javascript">
         var map;
         var polygon;
+        var taskDetailsMap = {};
+
         $(document).ready(function () {
-            // Código para cargar las tareas cuando se selecciona un supervisor
             $('#supervisorList').change(function () {
                 var supervisorId = $(this).val();
                 var tasks = JSON.parse('@Html.Raw(ViewBag.AllTasks)');
-
                 var taskOptions = "<option value=''>Selecciona una tarea</option>";
 
                 if (tasks[supervisorId]) {
                     tasks[supervisorId].forEach(task => {
-                        taskOptions += `<option value='${task.Id}'
-                                                data-state='${task.Estado}'
-                                                data-coordinates='${JSON.stringify(task.Coordenadas)}'
-                                                data-colorValue='${task.ColorValue}'>${task.Zona}</option>`;
+                        taskDetailsMap[task.Id] = task;
+                        taskOptions += `<option value='${task.Id}'>${task.Zona}</option>`;
                     });
                 }
 
                 $('#taskList').html(taskOptions);
-                // Limpia la tabla y los detalles del color ya que el supervisor cambió
                 $('#tasksTable tbody').empty();
-                $('#colorDisplay').css('background-color', ''); // Resetea el color
-                $('#colorName').text(''); // Resetea el nombre del color
+                $('#colorDisplay').css('background-color', '');
+                $('#colorName').text('');
+                $('#colorDescription').text('');
             });
 
-            // Código para mostrar el estado, las coordenadas y el color cuando se selecciona una tarea y actualizar la tabla de tareas
             $('#taskList').change(function () {
                 var selectedTaskId = $(this).val();
-                var selectedTaskState = $(this).find('option:selected').data('state');
-                var coords = $(this).find('option:selected').data('coordinates');
-                var selectedTaskColorValue = $(this).find('option:selected').data('colorValue');
+                var selectedTaskDetails = taskDetailsMap[selectedTaskId];
 
-                // Actualiza los checkboxes según el estado de la tarea seleccionada
-                $('#pendingCheck').prop('checked', selectedTaskState === 'Pendiente');
-                $('#inProcessCheck').prop('checked', selectedTaskState === 'En Proceso');
-                $('#finishedCheck').prop('checked', selectedTaskState === 'Terminado');
-                $('#taskState').val(selectedTaskState);
+                if (selectedTaskDetails) {
+                    $('#pendingCheck').prop('checked', selectedTaskDetails.Estado === 'Pendiente');
+                    $('#inProcessCheck').prop('checked', selectedTaskDetails.Estado === 'En Proceso');
+                    $('#finishedCheck').prop('checked', selectedTaskDetails.Estado === 'Terminado');
+                    $('#taskState').val(selectedTaskDetails.Estado);
 
-                // Actualiza la visualización del color
-                $('#colorDisplay').css('background-color', selectedTaskColorValue);
+                    $('#colorDisplay').css('background-color', selectedTaskDetails.ColorValue);
+                    $('#colorName').text(selectedTaskDetails.ColorName); // Actualiza el nombre del color
+                    $('#colorDescription').text(selectedTaskDetails.ColorDescription); // Actualiza la descripción del color
 
-                // Actualiza la tabla con las tareas que coinciden con el IDtarea seleccionado
-                var allTaskList = JSON.parse('@Html.Raw(ViewBag.TaskList)');
-                var matchingTasks = allTaskList.filter(task => task.IDtarea === selectedTaskId);
-                var tableBody = $('#tasksTable tbody');
-                tableBody.empty();
+                    var allTaskList = JSON.parse('@Html.Raw(ViewBag.TaskList)');
+                    var matchingTasks = allTaskList.filter(task => task.IDtarea === selectedTaskId);
+                    var tableBody = $('#tasksTable tbody');
+                    tableBody.empty();
 
-                // Agrega cada tarea coincidente a la tabla
-                let rowNumber = 1;
-                matchingTasks.forEach(task => {
-                    var newRow = `<tr>
-                          <td>${rowNumber++}</td>
-                          <td>${task.Nombre}</td>
-                          <td>${task.Descripcion}</td>
-                          <td>${task.Tarea}</td>
-                          <td><button onclick="openTaskDetails('${task.Id}')" class="btn" style="background-color: #49A078; color: white;">Detalles</button></td>
-                      </tr>`;
-                    tableBody.append(newRow);
-                });
-
-                // Dibuja el polígono en el mapa con el color seleccionado
-                if (polygon) {
-                    polygon.setMap(null); // Elimina el polígono anterior si existe
-                }
-                if (coords && coords.length > 0) {
-                    polygon = new google.maps.Polygon({
-                        paths: coords.map(coord => new google.maps.LatLng(coord.Lat, coord.Lng)),
-                        strokeColor: selectedTaskColorValue, // Usa el color seleccionado
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: selectedTaskColorValue, // Usa el color seleccionado
-                        fillOpacity: 0.35
+                    let rowNumber = 1;
+                    matchingTasks.forEach(task => {
+                        var newRow = `<tr>
+                                <td>${rowNumber++}</td>
+                                <td>${task.Nombre}</td>
+                                <td>${task.Descripcion}</td>
+                                <td>${task.Tarea}</td>
+                                <td><button onclick="openTaskDetails('${task.Id}')" class="btn" style="background-color: #49A078; color: white;">Detalles</button></td>
+                            </tr>`;
+                        tableBody.append(newRow);
                     });
-                    polygon.setMap(map);
+
+                    if (polygon) {
+                        polygon.setMap(null);
+                    }
+                    if (selectedTaskDetails.Coordenadas && selectedTaskDetails.Coordenadas.length > 0) {
+                        polygon = new google.maps.Polygon({
+                            paths: selectedTaskDetails.Coordenadas.map(coord => new google.maps.LatLng(coord.Lat, coord.Lng)),
+                            strokeColor: selectedTaskDetails.ColorValue,
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: selectedTaskDetails.ColorValue,
+                            fillOpacity: 0.35
+                        });
+                        polygon.setMap(map);
+                    }
+                } else {
+                    $('#colorDisplay').css('background-color', '');
+                    $('#colorName').text('');
+                    $('#colorDescription').text('');
                 }
             });
         });
     </script>
+
+
 
     <script>
         function openTaskDetails(taskId) {
