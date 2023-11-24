@@ -1,0 +1,19 @@
+Aplicacion Web:
+httpw://www.mosquitounivalle.somee.com/
+
+Correo Utilizado Firebase Console:
+Correo: mosquitounivalle@gmail.com
+Contraseña:cgr0030590
+
+Usuario Root Web
+Usuario:root@gmail.com
+Contraseña:123456
+
+Usuario Supervisor Movil
+Usuario:kevin799756@gmail.com
+Contraseña:123456
+
+Link del .apk:
+https://drive.google.com/file/d/1oaqFdQ7ZgndaxdH2Ox1ePoujJQvxgVpg/view?pli=1
+
+
