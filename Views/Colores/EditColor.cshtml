@@ -16,11 +16,11 @@
                         <span asp-validation-for="color" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <input asp-for="name" class="form-control" pattern="[a-zA-ZñÑ]+" title="El nombre solo puede contener letras." placeholder="Nombre Color" maxlength="20" required />
+                        <input asp-for="name" class="form-control" pattern="[a-zA-ZñÑ0-9\s]+" title="El nombre solo puede contener letras y numeros" placeholder="Nombre Color" maxlength="40" required />
                         <span asp-validation-for="name" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <textarea asp-for="description" class="form-control" rows="2" placeholder="Descripcion..." maxlength="50" required></textarea>
+                        <textarea asp-for="description" class="form-control" rows="2" placeholder="Descripcion..." maxlength="60" required></textarea>
                         <span asp-validation-for="description" class="text-danger"></span>
                     </div>
                     <div class="form-group">

@@ -21,7 +21,7 @@ namespace ps_mosquito_asp.Models
 
         [FirestoreProperty("ci")]
         //[Required(ErrorMessage = "El número de CI es obligatorio.")]
-        [RegularExpression(@"^\d{8}[A-Za-z]{0,2}$", ErrorMessage = "El campo debe tener 8 dígitos y puede tener hasta 2 letras adicionales.")]
+        [RegularExpression(@"^\d{7,8}[A-Za-z]{0,2}$", ErrorMessage = "El campo debe tener 7 u 8 dígitos y puede tener hasta 2 letras adicionales.")]
         public string? ci { get; set; }
 
         [FirestoreProperty("role")]

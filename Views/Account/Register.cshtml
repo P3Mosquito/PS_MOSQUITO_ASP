@@ -22,7 +22,7 @@
                         <span asp-validation-for="lastname" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <input asp-for="ci" class="form-control" placeholder="CI" pattern="\d{8}[A-Za-z]{0,2}" title="Ingrese 8 dígitos y hasta 2 letras opcionales." maxlength="10" required />
+                        <input asp-for="ci" class="form-control" placeholder="CI" pattern="\d{7,8}[A-Za-z]{0,2}" title="El campo debe tener 7 u 8 dígitos y puede tener hasta 2 letras adicionales." maxlength="10" required />
                         <span asp-validation-for="ci" class="text-danger"></span>
                     </div>
                     <div class="form-group">
