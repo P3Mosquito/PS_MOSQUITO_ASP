@@ -1,0 +1,16 @@
+﻿@model ps_mosquito_asp.Models.UserModel
+
+@{
+    ViewData["Title"] = "DeleteUser";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<div class="d-flex align-items-center justify-content-center flex-column" style="height: 50vh;">
+    <h3 class="text-center">Esta seguro que desea eliminar este usuario?</h3>
+    <form asp-action="DeleteUser">
+        <input type="submit" value="Eliminar" class="form-control btn btn-danger" />
+
+    <a class="btn btn-outline-success mt-2 form-control" asp-controller="Account" asp-action="Users">Volver</a>
+    </form>
+</div>
+

@@ -1,11 +1,178 @@
-﻿
+﻿@model List<UserModel>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Zonas";
     Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQVYzLAj0zkPB59vVvC0-RbMX0UFJgVuk&callback=initMap&libraries=places&v=weekly" async></script>
+    <script>
+        var map, searchBox, cityPolygon;
+        function initMap() {
+            var cochabamba = { lat: -17.383333, lng: -66.166667 };
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: cochabamba
+            });
 
+            var input = document.getElementById('city-search');
+            searchBox = new google.maps.places.SearchBox(input);
+            map.controls.push(input);
 
-<div class="d-flex justify-content-center align-items-center">
-    <h3>Zonas</h3>
-</div>
+            map.addListener('bounds_changed', function () {
+                searchBox.setBounds(map.getBounds());
+            });
 
+            searchBox.addListener('places_changed', function () {
+                var places = searchBox.getPlaces();
+
+                if (places.length == 0) {
+                    return;
+                }
+
+                // Si ya hay un polígono dibujado, lo eliminas
+                if (cityPolygon) {
+                    cityPolygon.setMap(null);
+                }
+
+                places.forEach(function (place) {
+                    if (!place.geometry) {
+                        console.log("Returned place contains no geometry");
+                        return;
+                    }
+
+                    document.getElementById('cityName').value = place.name
+
+                    // Construyes las coordenadas para el polígono rectangular
+                    var bounds = place.geometry.viewport;
+                    var northEast = bounds.getNorthEast();
+                    var southWest = bounds.getSouthWest();
+                    var northWest = new google.maps.LatLng(northEast.lat(), southWest.lng());
+                    var southEast = new google.maps.LatLng(southWest.lat(), northEast.lng());
+
+                    var polygonCoords = [northEast, northWest, southWest, southEast];
+
+                    // Dibujas el polígono
+                    cityPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: '#FF0000',
+                        fillOpacity: 0.35
+                    });
+                    document.getElementById('polygonCoords').value = JSON.stringify(polygonCoords);
+                    cityPolygon.setMap(map);
+                    map.fitBounds(bounds);
+                   
+                });
+            });
+        }
+
+        function searchCity() {
+            google.maps.event.trigger(searchBox, 'places_changed');
+        }
+       
+    </script>
+</head>
+<body onload="initMap()">
+    <div style="display: flex;">
+        <!-- Lado izquierdo con campos para asignar zona -->
+        <div style="width: 50%; padding: 20px;">
+            <h2 class="mb-4">Asignar Zona</h2>
+            <div class="card mt-2" style="background-color:#DCE1DE;">
+
+            <form method="POST" asp-action="AssignTasks" asp-controller="Zonas" onsubmit="return handleSubmit()">
+                <div>
+                    <select id="SupervisorId" name="SupervisorId" class="form-select" required>
+                        <option value="">Seleccione un Supervisor</option>
+                        @foreach (var supervisor in Model)
+                        {
+                            <option value="@supervisor.id">@supervisor.name @supervisor.lastname</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label>Seleccionar Zona:</label>
+                        <input class="form-control" type="text" id="cityName" name="cityName" readonly onchange="handleZoneChange()">     
+                </div>
+                <div class="form-control">
+                    <label>Color:</label>
+                        <select id="tipoColorId" name="tipoColorId" class="form-select">
+                            @foreach (var color in ViewBag.ColorNamesAndIds)
+                            {
+                                <option value="@color.Item2">@color.Item1</option>
+                            }
+                        </select>
+                </div>
+                <div class="form-control">
+                    <label for="cantidadTareas">Cantidad de Muestras:</label>
+                    <input type="number" id="cantidadMax" name="cantidadMax" class="form-control" min="1" max="50" required>
+                </div>
+                <div class="form-control" hidden>
+                        <input type="text" id="polygonCoords" name="polygonCoords" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-success w-100 mt-2">Asignar Zona</button>
+                    <!-- Modal Structure -->
+                    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    La zona no ha sido seleccionada.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            </form>
+            </div>
+        </div>
+
+        <!-- Lado derecho con el mapa -->
+        <div style="width: 50%;">
+            <h6>Seleccionar Zona</h6>
+            <div class="input-group mb-3">
+            <input id="city-search" type="text" class="form-control" placeholder="Buscar..." aria-label="Buscar">
+                <button class="btn btn-outline-secondary" type="button" onclick="searchCity()">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div id="map" style="height: 50vh;"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+    //Validations
+    document.getElementById("SupervisorId").addEventListener("change", function () {
+        var value = this.value;
+        if (value === "") {
+            // Aquí puedes agregar alguna lógica adicional, como mostrar un mensaje de error personalizado.
+            alert("Debe seleccionar un supervisor.");
+        }
+    });
+
+    function handleSubmit() {
+        var cityName = document.getElementById('cityName').value;
+
+        // Si no hay selección, muestra el error en un modal.
+        if (!cityName.trim()) {
+            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+            return false; // Detiene el envío del formulario
+        }
+
+        // Lógica adicional para el envío del formulario
+        return true; // Continúa con el envío del formulario
+    }
+</script>
